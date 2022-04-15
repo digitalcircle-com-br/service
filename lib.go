@@ -56,6 +56,11 @@ func Init(s string) {
 	}
 
 	router = mux.NewRouter()
+
+	router.Path("/__test").Methods(http.MethodGet).HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte(buildinfo.String()))
+	})
+
 	go func() {
 		<-sigCh
 		err := rediscli.Close()
