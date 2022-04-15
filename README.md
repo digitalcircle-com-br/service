@@ -1,2 +1,2 @@
 # service
-Base Service
+Basic Service Functionality
