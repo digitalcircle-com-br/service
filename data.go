@@ -57,30 +57,3 @@ func Dequeue(q string, to int) ([]string, error) {
 	context := context.Background()
 	return rediscli.BRPop(context, time.Second*time.Duration(to), q).Result()
 }
-
-type Msg struct {
-	Chan    string
-	Payload string
-	Err     error
-}
-
-func Sub(ch ...string) (ret <-chan *Msg, closefn func()) {
-	sub := rediscli.Subscribe(context.Background(), ch...)
-	inret := make(chan *Msg)
-	ret = inret
-	run := true
-	go func() {
-		for run {
-			msg, err := sub.ReceiveMessage(context.Background())
-			m := &Msg{Chan: msg.Channel, Payload: msg.Payload, Err: err}
-			inret <- m
-		}
-	}()
-
-	closefn = func() {
-		run = false
-		sub.Close()
-		close(inret)
-	}
-	return
-}

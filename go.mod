@@ -5,6 +5,7 @@ go 1.18
 require (
 	github.com/digitalcircle-com-br/buildinfo v0.0.0-20220307112458-bf70fcc17929
 	github.com/go-redis/redis/v8 v8.11.5
+	github.com/google/uuid v1.3.0
 	github.com/gorilla/mux v1.8.0
 	github.com/stretchr/testify v1.7.1
 	gopkg.in/yaml.v2 v2.4.0

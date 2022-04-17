@@ -10,12 +10,12 @@ import (
 )
 
 func CtxReq(c context.Context) *http.Request {
-	raw := c.Value("REQ")
+	raw := c.Value(CTX_REQ)
 	return raw.(*http.Request)
 }
 
 func CtxRes(c context.Context) http.ResponseWriter {
-	raw := c.Value("RES")
+	raw := c.Value(CTX_RES)
 	return raw.(http.ResponseWriter)
 }
 
@@ -28,12 +28,11 @@ func CtxSessionID(c context.Context) string {
 }
 
 func CtxTenant(c context.Context) string {
-	sess := CtxSessionID(c)
-	t, err := DataHGet(sess, "tenant")
+	ck, err := CtxReq(c).Cookie("X-SESSIONID")
 	if err != nil {
 		return ""
 	}
-	return t
+	return ck.Value
 }
 
 func CtxDb(c context.Context) (db *gorm.DB, close func(), err error) {
@@ -51,7 +50,7 @@ func CtxVars(c context.Context) map[string]string {
 }
 
 func CtxDone(c context.Context) func() {
-	raw := c.Value("DONE")
+	raw := c.Value(CTX_DONE)
 	return raw.(func())
 }
 
@@ -62,4 +61,8 @@ func CtxErr(c context.Context, err error) bool {
 		return true
 	}
 	return false
+}
+
+func CtxSession(c context.Context) *Session {
+	return c.Value(CTX_SESSION).(*Session)
 }

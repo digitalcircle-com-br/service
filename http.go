@@ -43,35 +43,60 @@ func HttpRouter() *mux.Router {
 	return router
 }
 
-func HttpHandle[TIN, TOUT any](hpath string, method string, perm string, f func(context.Context, TIN) (TOUT, error)) {
+func HttpHandle[TIN, TOUT any](hpath string, method string, perm PermDef, f func(context.Context, TIN) (TOUT, error)) {
 	router.Path(hpath).Methods(method).HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// if perm != "" {
-		// 	sess := r.Header.Get("X-SESSION")
-		// 	_, err := DataHGet(sess, perm)
-		// 	if err != nil {
-		// 		_, err := DataHGet(sess, "*")
-		// 		if err != nil {
-		// 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		// 			return
-		// 		}
-		// 	}
-		// }
+
 		done := false
-		nctx := context.WithValue(r.Context(), "REQ", r)
-		nctx = context.WithValue(nctx, "RES", w)
-		nctx = context.WithValue(nctx, "DONE", func() {
+		nctx := context.WithValue(r.Context(), CTX_REQ, r)
+		nctx = context.WithValue(nctx, CTX_RES, w)
+		nctx = context.WithValue(nctx, CTX_DONE, func() {
 			done = true
 		})
-		nctx.Done()
+
+		if perm != PERM_ALL {
+			ck, err := r.Cookie(string(COOKIE_SESSION))
+			if err != nil {
+				http.Error(w, "Unauthorized", http.StatusUnauthorized)
+				return
+			}
+
+			sess, err := SessionLoad(ck.Value)
+			if err != nil || sess == nil {
+				http.Error(w, "Unauthorized", http.StatusUnauthorized)
+				return
+			}
+			if perm != PERM_AUTH {
+				_, ok := sess.Perms[perm]
+				if !ok {
+					_, ok = sess.Perms[PERM_ROOT]
+					if !ok {
+						http.Error(w, "Unauthorized", http.StatusUnauthorized)
+						return
+					}
+				}
+			}
+			nctx = context.WithValue(nctx, CTX_SESSION, sess)
+
+		}
 
 		r = r.WithContext(nctx)
 		in := new(TIN)
 
-		err := json.NewDecoder(r.Body).Decode(in)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
+		switch r.Method {
+		case http.MethodPatch:
+			fallthrough
+		case http.MethodPost:
+			fallthrough
+		case http.MethodPut:
+			err := json.NewDecoder(r.Body).Decode(in)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+		default:
+
 		}
+
 		out, err := f(r.Context(), *in)
 		if !done {
 			w.Header().Add("Content-Type", "application/json")

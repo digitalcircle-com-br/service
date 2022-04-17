@@ -40,11 +40,22 @@ func Init(s string) {
 	svcName = s
 	signal.Notify(sigCh, syscall.SIGTERM, syscall.SIGINT)
 
-	rediscli = redis.NewClient(&redis.Options{Addr: "redis:6379", Password: os.Getenv("KEY")})
+	redisurl := os.Getenv("REDIS")
+	if redisurl == "" {
+		redisurl = "redis://redis:6379"
+	}
+	opts, err := redis.ParseURL(redisurl)
+	if err != nil {
+		panic(err)
+	}
+
+	rediscli = redis.NewClient(opts)
 
 	context, cancel := ctx()
+
 	defer cancel()
-	_, err := rediscli.Ping(context).Result()
+
+	_, err = rediscli.Ping(context).Result()
 
 	if err != nil {
 		//TODO: improve error msg

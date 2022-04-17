@@ -1,25 +1,64 @@
 package service
 
+import "time"
+
 type VO struct {
 	ID uint64 `json:"id"`
 }
+type PermDef string
+
+const (
+	PERM_ALL  PermDef = ""
+	PERM_AUTH PermDef = "+"
+	PERM_ROOT PermDef = "*"
+)
+
+type CtxKey string
+
+const (
+	CTX_REQ     CtxKey = "REQ"
+	CTX_RES     CtxKey = "RES"
+	CTX_DONE    CtxKey = "DONE"
+	CTX_ID      CtxKey = "ID"
+	CTX_START   CtxKey = "START"
+	CTX_SESSION CtxKey = "SESSION"
+)
+
+type CookieName string
+
+const (
+	COOKIE_SESSION CookieName = "SESSIONID"
+	COOKIE_TENANT  CookieName = "TENANTID"
+)
+
+type HeaderName string
+
+const (
+	HEADER_APIKEY HeaderName = "X-APIKEY"
+	HEADER_TENAT  HeaderName = "X-TENANT"
+)
 
 type SecUser struct {
 	VO
-	Username string `json:"username"`
-	Hash     string `json:"-"`
-	Tenant   string `json:"tenant"`
-	Enabled  *bool  `json:"enabled"`
+	Username string      `json:"username"`
+	Email    string      `json:"email"`
+	Hash     string      `json:"-"`
+	Tenant   string      `json:"tenant"`
+	Enabled  *bool       `json:"enabled"`
+	Groups   []*SecGroup `json:"groups" gorm:"many2many:sec_user_groups;"`
+}
+
+type SecGroup struct {
+	VO
+	Name  string     `json:"name"`
+	Perms []*SecPerm `json:"perms" gorm:"many2many:sec_group_perms;"`
 }
 
 type SecPerm struct {
 	VO
-	Username string `json:"username"`
-	Hash     string `json:"hash"`
-	Tenant   string `json:"tenant"`
+	Name string `json:"name"`
+	Val  string `json:"val"`
 }
-
-const COOKIE = "X-SESSIONID"
 
 type LoginRequest struct {
 	Tenant   string `json:"tenant"`
@@ -28,4 +67,13 @@ type LoginRequest struct {
 }
 
 type LoginResponse struct {
+}
+
+type Session struct {
+	Username  string             `json:"username"`
+	Sessionid string             `json:"sessionid"`
+	Perms     map[PermDef]string `json:"perms"`
+	Tenant    string             `json:"tenant"`
+	CreatedAt time.Time          `json:"created_at"`
+	Hash      []byte             `json:"-"`
 }
