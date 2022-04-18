@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/brianvoe/gofakeit/v6"
 	"github.com/gorilla/mux"
 )
 
@@ -43,7 +44,24 @@ func HttpRouter() *mux.Router {
 	return router
 }
 
+var apiEntries = make([]*ApiEntry,0)
+
 func HttpHandle[TIN, TOUT any](hpath string, method string, perm PermDef, f func(context.Context, TIN) (TOUT, error)) {
+	Log("Adding handler: %s:%s[%s]", method, hpath, perm)
+
+	entry:= &ApiEntry{
+		Path:   hpath,
+		Method: method,
+		Perm:   perm,
+		In:     new(TIN),
+		Out:    new(TOUT),
+	}
+
+	gofakeit.Struct(entry.In)
+	gofakeit.Struct(entry.Out)
+
+	apiEntries = append(apiEntries,entry)
+
 	router.Path(hpath).Methods(method).HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		done := false

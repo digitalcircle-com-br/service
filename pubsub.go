@@ -16,8 +16,16 @@ func Sub(ch ...string) (ret <-chan *Msg, closefn func()) {
 	go func() {
 		for run {
 			msg, err := sub.ReceiveMessage(context.Background())
-			m := &Msg{Chan: msg.Channel, Payload: msg.Payload, Err: err}
-			inret <- m
+			m := &Msg{}
+			if err == nil {
+				m.Chan = msg.Channel
+				m.Payload = msg.Payload
+			} else {
+				m.Err = err
+			}
+			if run {
+				inret <- m
+			}
 		}
 	}()
 

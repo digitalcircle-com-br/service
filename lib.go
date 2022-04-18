@@ -3,6 +3,7 @@ package service
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -66,6 +67,11 @@ func Init(s string) {
 
 	router.Path("/__test").Methods(http.MethodGet).HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(buildinfo.String()))
+	})
+
+	router.Path("/__help").Methods(http.MethodGet).HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("Content-type", "application/json")
+		json.NewEncoder(w).Encode(apiEntries)
 	})
 
 	go func() {

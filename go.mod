@@ -3,6 +3,7 @@ module github.com/digitalcircle-com-br/service
 go 1.18
 
 require (
+	github.com/brianvoe/gofakeit/v6 v6.16.0
 	github.com/digitalcircle-com-br/buildinfo v0.0.0-20220307112458-bf70fcc17929
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/google/uuid v1.3.0
@@ -27,6 +28,7 @@ require (
 	github.com/jackc/pgx/v4 v4.15.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.4 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519 // indirect
 	golang.org/x/text v0.3.7 // indirect

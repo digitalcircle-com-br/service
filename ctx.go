@@ -66,3 +66,8 @@ func CtxErr(c context.Context, err error) bool {
 func CtxSession(c context.Context) *Session {
 	return c.Value(CTX_SESSION).(*Session)
 }
+
+func CtxDB(c context.Context) (*gorm.DB, error) {
+	sess := CtxSession(c)
+	return DBN(sess.Tenant)
+}

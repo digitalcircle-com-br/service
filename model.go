@@ -77,3 +77,11 @@ type Session struct {
 	CreatedAt time.Time          `json:"created_at"`
 	Hash      []byte             `json:"-"`
 }
+
+type ApiEntry struct {
+	Path   string
+	Method string
+	Perm   PermDef
+	In     interface{}
+	Out    interface{}
+}
