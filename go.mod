@@ -3,6 +3,7 @@ module github.com/digitalcircle-com-br/service
 go 1.18
 
 require (
+	github.com/breml/rootcerts v0.2.3
 	github.com/brianvoe/gofakeit/v6 v6.16.0
 	github.com/digitalcircle-com-br/buildinfo v0.0.0-20220307112458-bf70fcc17929
 	github.com/go-redis/redis/v8 v8.11.5
