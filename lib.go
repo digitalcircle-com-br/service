@@ -81,6 +81,7 @@ func Init(s string) {
 		if server != nil {
 			HttpStop()
 		}
+		os.Exit(0)
 	}()
 	if IsDocker() {
 		Log("Initiating Container for: %s", svcName)

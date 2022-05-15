@@ -44,12 +44,12 @@ func HttpRouter() *mux.Router {
 	return router
 }
 
-var apiEntries = make([]*ApiEntry,0)
+var apiEntries = make([]*ApiEntry, 0)
 
 func HttpHandle[TIN, TOUT any](hpath string, method string, perm PermDef, f func(context.Context, TIN) (TOUT, error)) {
 	Log("Adding handler: %s:%s[%s]", method, hpath, perm)
 
-	entry:= &ApiEntry{
+	entry := &ApiEntry{
 		Path:   hpath,
 		Method: method,
 		Perm:   perm,
@@ -60,7 +60,7 @@ func HttpHandle[TIN, TOUT any](hpath string, method string, perm PermDef, f func
 	gofakeit.Struct(entry.In)
 	gofakeit.Struct(entry.Out)
 
-	apiEntries = append(apiEntries,entry)
+	apiEntries = append(apiEntries, entry)
 
 	router.Path(hpath).Methods(method).HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
